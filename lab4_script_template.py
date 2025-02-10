@@ -1,10 +1,11 @@
 import sys
 import os
+import re
 
 def main():
     log_file = get_log_file_path_from_cmd_line()
 
-# TODO: Step 3
+# Step 3
 def get_log_file_path_from_cmd_line():
     if len(sys.argv) < 2:
         print("Error: Log file path must be provided as a command line argument.")
@@ -18,21 +19,27 @@ def get_log_file_path_from_cmd_line():
 
     return log_file_path
 
-# TODO: Steps 4-7
-def filter_log_by_regex(log_file, regex, ignore_case=True, print_summary=False, print_records=False):
-    """Gets a list of records in a log file that match a specified regex.
+# Steps 4-7
+def filter_log_by_regex(log_file, regex, ignore_case, print_summary, print_records):
+    pattern_flags = re.IGNORECASE if ignore_case else 0
+    pattern = re.compile(regex, pattern_flags)
 
-    Args:
-        log_file (str): Path of the log file
-        regex (str): Regex filter
-        ignore_case (bool, optional): Enable case insensitive regex matching. Defaults to True.
-        print_summary (bool, optional): Enable printing summary of results. Defaults to False.
-        print_records (bool, optional): Enable printing all records that match the regex. Defaults to False.
+    matching_records = []
 
-    Returns:
-        (list, list): List of records that match regex, List of tuples of captured data
-    """
-    return
+    with open(log_file, 'r') as file:
+        for line in file:
+            if pattern.search(line):
+                matching_records.append(line.strip())
+    
+    if print_records:
+        for record in matching_records:
+            print(record)
+
+    if print_summary:
+        case_text = "case-insensitive" if ignore_case else "case-sensitive"
+        print(f"\nThe log file contains {len(matching_records)} records that {case_text} match '{regex}'.")
+
+    return matching_records
 
 # TODO: Step 8
 def tally_port_traffic(log_file):
