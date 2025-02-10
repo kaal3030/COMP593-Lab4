@@ -43,6 +43,8 @@ def main():
     
     generate_invalid_user_report(log_file)
 
+    generate_source_ip_log(log_file, "220.195.35.40")
+
 
 def get_log_file_path_from_cmd_line():
     if len(sys.argv) < 2:
@@ -78,7 +80,7 @@ def generate_port_traffic_report(log_file, port_number):
     with open(log_file, 'r') as file:
         for line in file:
             match = re.search(regex, line)
-            if match and match.group(6) == str(port_number): 
+            if match and match.group(6) == str(port_number):  
                 matching_records.append(line.strip())
                 captured_data.append(match.groups())
 
@@ -100,6 +102,7 @@ def generate_port_traffic_report(log_file, port_number):
             csv_writer.writerow(row)
 
     print(f"\nCSV report generated: {csv_filename}")
+
 
 
 def generate_invalid_user_report(log_file):
@@ -135,9 +138,30 @@ def generate_invalid_user_report(log_file):
     print(f"\nCSV report generated: {csv_filename}")
 
 
-# TODO: Step 12
 def generate_source_ip_log(log_file, ip_address):
-    return
+    regex = r"(\w{3} \d{1,2})\s+(\d{2}:\d{2}:\d{2}).*SRC=" + re.escape(ip_address)
+
+    matching_records = []
+
+    with open(log_file, 'r') as file:
+        for line in file:
+            match = re.search(regex, line)
+            if match:
+                matching_records.append(line.strip())
+
+    if not matching_records:
+        print(f"\nNo log entries found for source IP {ip_address}.")
+        return
+
+    formatted_ip = ip_address.replace('.', '_')
+    log_filename = f"source_ip_{formatted_ip}.log"
+
+    with open(log_filename, mode="w") as log_file:
+        for record in matching_records:
+            log_file.write(record + "\n")
+
+    print(f"\nPlain text log file generated: {log_filename}")
+
 
 if __name__ == '__main__':
     main()
