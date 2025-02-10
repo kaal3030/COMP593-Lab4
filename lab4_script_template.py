@@ -10,6 +10,7 @@ def main():
         sys.exit(1)
         
     log_file = get_log_file_path_from_cmd_line()
+    
     port_number = sys.argv[2]  
 
     try:
@@ -36,8 +37,9 @@ def main():
     for port, count in sorted(port_counts.items(), key=lambda x: x[1], reverse=True):
         print(f"Port {port}: {count} times")
 
-    generate_port_traffic_report(log_file, port_number)
-
+    for port, count in port_counts.items():
+        if count >= 100:
+            generate_port_traffic_report(log_file, port)
 
 # Step 3
 def get_log_file_path_from_cmd_line():
@@ -76,7 +78,7 @@ def generate_port_traffic_report(log_file, port_number):
     with open(log_file, 'r') as file:
         for line in file:
             match = re.search(regex, line)
-            if match and match.group(6) == str(port_number): 
+            if match and match.group(6) == str(port_number):  
                 matching_records.append(line.strip())
                 captured_data.append(match.groups())
 
@@ -98,7 +100,6 @@ def generate_port_traffic_report(log_file, port_number):
             csv_writer.writerow(row)
 
     print(f"\nCSV report generated: {csv_filename}")
-
 
 # TODO: Step 11
 def generate_invalid_user_report(log_file):
