@@ -1,6 +1,7 @@
 import sys
 import os
 import csv
+import re
 from log_filter import filter_log_by_regex
 
 def main():
@@ -52,15 +53,14 @@ def get_log_file_path_from_cmd_line():
 
     return log_file_path
 
-# TODO: Step 8
+
+# Step 8
 def tally_port_traffic(log_file):
     port_counts = {}
 
-    _, captured_ports = filter_log_by_regex(log_file, r"PROTO=(\w+)\s+SPT=(\d+)\s+DPT=(\d+)", True, False, False)
+    _, captured_ports = filter_log_by_regex(log_file, r"SPT=(\d+)\s+DPT=(\d+)", True, False, False)
 
-    print(f"Captured Ports: {captured_ports}")  
-
-    for protocol, src_port, dest_port in captured_ports:
+    for src_port, dest_port in captured_ports:
         port_counts[int(dest_port)] = port_counts.get(int(dest_port), 0) + 1
     
     return port_counts
@@ -68,14 +68,25 @@ def tally_port_traffic(log_file):
 
 # Step 9
 def generate_port_traffic_report(log_file, port_number):
-    regex = (r"(\d{2}-\w{3})\s+(\d{2}:\d{2}:\d{2}) .*? SRC=([\d.]+) DST=([\d.]+) "
-             r".*? SPT=(\d+) DPT=(" + str(port_number) + r")")
+    regex = r"(\w{3} \d{1,2})\s+(\d{2}:\d{2}:\d{2}) .*SRC=([\d.]+)\s+DST=([\d.]+)\s+.*SPT=(\d+)\s+DPT=(\d+)"
 
-    matching_records, captured_data = filter_log_by_regex(log_file, regex, True, False, False)
+    matching_records = []
+    captured_data = []
+
+    with open(log_file, 'r') as file:
+        for line in file:
+            match = re.search(regex, line)
+            if match and match.group(6) == str(port_number): 
+                matching_records.append(line.strip())
+                captured_data.append(match.groups())
 
     if not captured_data:
         print(f"\nNo log entries found for Port {port_number}.")
         return
+
+    print(f"\nMatching log entries for Port {port_number}:")
+    for record in matching_records:
+        print(record)
 
     csv_filename = f"destination_port_{port_number}_report.csv"
 
@@ -87,8 +98,6 @@ def generate_port_traffic_report(log_file, port_number):
             csv_writer.writerow(row)
 
     print(f"\nCSV report generated: {csv_filename}")
-    return
-
 
 
 # TODO: Step 11

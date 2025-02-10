@@ -12,10 +12,11 @@ def filter_log_by_regex(log_file, regex, ignore_case, print_summary, print_recor
             match = pattern.search(line)
             if match:
                 matching_records.append(line.strip())
-                if match.groups():  
+                if match.groups():
                     captured_data.append(match.groups())
-    
+
     if print_records:
+        print(f"\nTotal matching records: {len(matching_records)}")
         for record in matching_records:
             print(record)
 
