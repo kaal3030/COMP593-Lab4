@@ -40,8 +40,10 @@ def main():
     for port, count in port_counts.items():
         if count >= 100:
             generate_port_traffic_report(log_file, port)
+    
+    generate_invalid_user_report(log_file)
 
-# Step 3
+
 def get_log_file_path_from_cmd_line():
     if len(sys.argv) < 2:
         print("Error: Log file path must be provided as a command line argument.")
@@ -56,7 +58,6 @@ def get_log_file_path_from_cmd_line():
     return log_file_path
 
 
-# Step 8
 def tally_port_traffic(log_file):
     port_counts = {}
 
@@ -68,7 +69,6 @@ def tally_port_traffic(log_file):
     return port_counts
 
 
-# Step 9
 def generate_port_traffic_report(log_file, port_number):
     regex = r"(\w{3} \d{1,2})\s+(\d{2}:\d{2}:\d{2}) .*SRC=([\d.]+)\s+DST=([\d.]+)\s+.*SPT=(\d+)\s+DPT=(\d+)"
 
@@ -78,7 +78,7 @@ def generate_port_traffic_report(log_file, port_number):
     with open(log_file, 'r') as file:
         for line in file:
             match = re.search(regex, line)
-            if match and match.group(6) == str(port_number):  
+            if match and match.group(6) == str(port_number): 
                 matching_records.append(line.strip())
                 captured_data.append(match.groups())
 
@@ -101,9 +101,39 @@ def generate_port_traffic_report(log_file, port_number):
 
     print(f"\nCSV report generated: {csv_filename}")
 
-# TODO: Step 11
+
 def generate_invalid_user_report(log_file):
-    return
+    regex = r"(\w{3} \d{1,2})\s+(\d{2}:\d{2}:\d{2})\s+myth\s+sshd\[\d+\]:\s+Invalid user\s+(\S+)\s+from\s+([\d.]+)"
+    
+    matching_records = []
+    captured_data = []
+
+    with open(log_file, 'r') as file:
+        for line in file:
+            match = re.search(regex, line)
+            if match:
+                matching_records.append(line.strip())
+                captured_data.append(match.groups())
+
+    if not captured_data:
+        print(f"\nNo invalid user log entries found.")
+        return
+
+    print(f"\nMatching invalid user log entries:")
+    for record in matching_records:
+        print(record)
+
+    csv_filename = "invalid_users.csv"
+
+    with open(csv_filename, mode="w", newline="") as csv_file:
+        csv_writer = csv.writer(csv_file)
+        csv_writer.writerow(["Date", "Time", "Username", "IP Address"])
+
+        for row in captured_data:
+            csv_writer.writerow(row)
+
+    print(f"\nCSV report generated: {csv_filename}")
+
 
 # TODO: Step 12
 def generate_source_ip_log(log_file, ip_address):
