@@ -1,10 +1,22 @@
+import sys
+import os
 
 def main():
     log_file = get_log_file_path_from_cmd_line()
 
 # TODO: Step 3
 def get_log_file_path_from_cmd_line():
-    return
+    if len(sys.argv) < 2:
+        print("Error: Log file path must be provided as a command line argument.")
+        sys.exit(1)
+
+    log_file_path = sys.argv[1]
+
+    if not os.path.isfile(log_file_path):
+        print(f"Error: File '{log_file_path}' does not exist")
+        sys.exit(1)
+
+    return log_file_path
 
 # TODO: Steps 4-7
 def filter_log_by_regex(log_file, regex, ignore_case=True, print_summary=False, print_records=False):
