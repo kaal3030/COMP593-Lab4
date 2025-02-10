@@ -5,11 +5,15 @@ def filter_log_by_regex(log_file, regex, ignore_case, print_summary, print_recor
     pattern = re.compile(regex, pattern_flags)
 
     matching_records = []
+    captured_data = []
 
     with open(log_file, 'r') as file:
         for line in file:
-            if pattern.search(line):
+            match = pattern.search(line)
+            if match:
                 matching_records.append(line.strip())
+                if match.groups():  
+                    captured_data.append(match.groups())
     
     if print_records:
         for record in matching_records:
@@ -19,4 +23,4 @@ def filter_log_by_regex(log_file, regex, ignore_case, print_summary, print_recor
         case_text = "case-insensitive" if ignore_case else "case-sensitive"
         print(f"\nThe log file contains {len(matching_records)} records that {case_text} match '{regex}'.")
 
-    return matching_records
+    return matching_records , captured_data

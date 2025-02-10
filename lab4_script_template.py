@@ -10,6 +10,13 @@ def main():
     filter_log_by_regex(log_file, "invalid user.*220.195.35.40", True, True, True)
     filter_log_by_regex(log_file, "error", True, True, True)
 
+    _, extracted_source_ips = filter_log_by_regex(log_file, r"SRC=([\d.]+)", True, False, False)
+    
+    if extracted_source_ips:
+        print("\nExtracted Source IPs:")
+        for ip in extracted_source_ips:
+            print(ip[0])
+
 # Step 3
 def get_log_file_path_from_cmd_line():
     if len(sys.argv) < 2:
