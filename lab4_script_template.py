@@ -5,6 +5,11 @@ import re
 def main():
     log_file = get_log_file_path_from_cmd_line()
 
+    filter_log_by_regex(log_file, "sshd", True, True, True)
+    filter_log_by_regex(log_file, "invalid user", True, True, True)
+    filter_log_by_regex(log_file, "invalid user.*220.195.35.40", True, True, True)
+    filter_log_by_regex(log_file, "error", True, True, True)
+
 # Step 3
 def get_log_file_path_from_cmd_line():
     if len(sys.argv) < 2:
